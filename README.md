@@ -1,7 +1,7 @@
 # adc-side-channel-attack
 
 ## Overview
-This project focuses on the design and implementation of Analog-to-Digital Converters (ADCs) with enhanced resistance to Power Side-Channel Attacks (PSAs). It combines digital and analog components to explore vulnerabilities in ADC designs and proposes countermeasures to improve their security.
+This project focuses on the design and implementation of Analog-to-Digital Converters (ADCs) with enhanced resistance to Power Side-Channel Attacks (PSAs). It combines digital and analog components to explore vulnerabilities in ADC designs and proposes countermeasures to improve their security. The project is entirely based on open-source tools.
 
 ## Repository Contents
 - digital/: Verilog designs and testbenches for ADC components, including the counter, edge detector, and register.
@@ -16,4 +16,4 @@ This project focuses on the design and implementation of Analog-to-Digital Conve
 
 ## Block Diagram
 
-<img width="1038" alt="Screenshot 2025-01-02 at 19 48 27" src="https://github.com/user-attachments/assets/d0a407f5-729f-4cde-a346-704efba94b14" />
+<img width="1038" alt="Screenshot 2025-01-02 at 21 15 48" src="https://github.com/user-attachments/assets/1d6f0f67-4360-4984-8ac0-78788818c226" />
