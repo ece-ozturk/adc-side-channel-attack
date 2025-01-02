@@ -1,0 +1,16 @@
+#!/bin/sh
+
+# cleanup
+rm -rf obj_dir
+rm -f  single_row_adc.vcd
+
+# run Verilator to translate Verilog into C++, include C++ testbench
+verilator -Wall --cc --trace single_row_adc.v --exe single_row_adc_tb.cpp
+# build C++ project
+make -j -C obj_dir/ -f Vsingle_row_adc.mk Vsingle_row_adc
+# run executable simulation
+obj_dir/Vsingle_row_adc
+
+
+# view waveforms
+gtkwave single_row_adc.vcd &
