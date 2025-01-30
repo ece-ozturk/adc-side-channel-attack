@@ -1,46 +1,60 @@
-Simulation of digital counter circuit synthesized with Yosys
+Simulation of digital circuit synthesized with Yosys
 
 ** opencircuitdesign pdks install
 .lib "/foss/pdk/sky130A/libs.tech/ngspice/sky130.lib.spice" tt
 .include "/foss/pdk/sky130A/libs.ref/sky130_fd_sc_hd/spice/sky130_fd_sc_hd.spice"
 .include counter_synth.model
 .include register_array_synth.model
-.include edge_detector_synth.model
+.include negedge_detector_synth.model
 
 * Instantiate counter module
 XCOUNTER clk reset count.0 count.1 count.2 count.3 count.4 count.5 count.6 count.7 vss vss vdd vdd counter
 
-* Instantiate edge detector module (detects rising edges of comparator signals)
-XEDGE_DETECTOR clk reset comp.0 enable vss vss vdd vdd edge_detector
+* Instantiate edge detector module (detects negative edges of comparator signals)
+XEDGE_DETECTOR clk reset comp.0_buffered enable vss vss vdd vdd negedge_detector
 
 * Instantiate registers module (stores values based on edge detector output)
 XREGISTER_ARRAY clk reset enable count.0 count.1 count.2 count.3 count.4 count.5 count.6 count.7 stored_values.0 stored_values.1 stored_values.2 stored_values.3 stored_values.4 stored_values.5 stored_values.6 stored_values.7 vss vss vdd vdd register_array
 
+* ! Synthesizer optimizes the inversion in Verilog input. Inverters added manually for now.
+XINV1 comp.0 vss vss vdd vdd comp.0_1 sky130_fd_sc_hd__inv_1
+XINV2 comp.0_1 vss vss vdd vdd comp.0_2 sky130_fd_sc_hd__inv_1
+XINV3 comp.0_2 vss vss vdd vdd comp.0_3 sky130_fd_sc_hd__inv_1
+XINV4 comp.0_3 vss vss vdd vdd comp.0_4 sky130_fd_sc_hd__inv_1
+XINV5 comp.0_4 vss vss vdd vdd comp.0_5 sky130_fd_sc_hd__inv_1
+XINV6 comp.0_5 vss vss vdd vdd comp.0_6 sky130_fd_sc_hd__inv_1
+XINV7 comp.0_6 vss vss vdd vdd comp.0_7 sky130_fd_sc_hd__inv_1
+XINV8 comp.0_7 vss vss vdd vdd comp.0_buffered sky130_fd_sc_hd__inv_1
+
 * Voltage sources
 .param vdd=1.8
-Vvdd vdd 0 {vdd}
+Vdd vdd 0 {vdd}
 
 .param vss=0
-Vvss vss 0 {vss}
+Vss vss 0 {vss}
 
 ** Clock and Reset signals (1MHz clock)
-Vrst    reset   0   pulse   {vdd}   {vss}   2u      2n  2n  490u    500u
-Vclk    clk     0   pulse   {vss}   {vdd}   200n    1n  1n  0.5u      1u
+Vrst    reset   0   pulse   {vdd}   {vss}   2u      10p     10p    490u    500u
+Vclk    clk     0   pulse   {vss}   {vdd}   0       10p     10p     0.5u      1u
 
-* Comparator signal (example: 5 comparators with random outputs)
-* Here, we simulate random '1's and '0's for comparators, adjust as needed
-Vcomp0 comp.0 0 pulse {vdd} {vss} 0 5n 5n 66u 258u
+* Comparator signal (example: 1 comparators with random outputs)
+Vcomp0 comp.0   0   pulse   {vss}   {vdd}   48u     200p    200p    0.5u    1u
 
 ** Simulation settings
-*.control
+*.option method=Gear
 .option KLU
 .option skywaterpdk
-.tran 1n 258u130
-.save i(Vvdd)
 
-.plot v(clk) 2+v(reset) 4+v(comp.0)
-.plot v(count.0) 2+v(count.1) 4+v(count.2) 6+v(count.3) 8+v(count.4) 10+v(count.5) 12+v(count.6) 14+v(count.7)
-.plot v(stored_values.0) 2+v(stored_values.1) 4+v(stored_values.2) 6+v(stored_values.3) 8+v(stored_values.4) 10+v(stored_values.5) 12+v(stored_values.6) 14+v(stored_values.7)
-*.endc
+.control
+set color0=white
+
+tran 1n 60u
+plot I(vdd)
+plot V(comp.0)
+
+set wr_singlescale
+set wr_vecnames
+wrdata outfiles/data -I(vdd)
+.endc
 
 .END
